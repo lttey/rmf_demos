@@ -25,6 +25,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'boolean = rmf_demos_tasks.boolean:main',
+            'lanes = rmf_demos_tasks.lanes:main',
             'request_loop = rmf_demos_tasks.request_loop:main',
             'request_lift = rmf_demos_tasks.request_lift:main',
             'cancel_task = rmf_demos_tasks.cancel_task:main',
