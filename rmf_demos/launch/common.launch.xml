@@ -12,6 +12,8 @@
   <arg name="server_uri" default="" description="The URI of the api server to transmit state and task information."/>
   <arg name="use_reservation_node" default="false" description="Enable the reservation node for parking spot de-confliction"/>
   <arg name="use_site_map" default="false" description="Generate and serve site maps if True. Otherwise supports only building maps."/>
+  <arg name="use_lift_manager" default="false" description="Run rmf_lift_manager (lift supervisor + lift selection) instead of lift_supervisor"/>
+  <arg name="lift_manager_config" default="$(find-pkg-share rmf_lift_manager)/config/lift_manager.yaml" description="Parameter file for rmf_lift_manager"/>
 
   <!-- Traffic Schedule  -->
   <node pkg="rmf_traffic_ros2" exec="rmf_traffic_schedule" output="both" name="rmf_traffic_schedule_primary">
@@ -55,9 +57,18 @@
     </node>
   </group>
 
-  <!-- Lift Supervisor -->
-  <group>
+  <!-- Lift Supervisor. Replaced by the Lift Manager when use_lift_manager is true;
+       never run both, as each publishes lift_requests. -->
+  <group unless="$(var use_lift_manager)">
     <node pkg="rmf_fleet_adapter" exec="lift_supervisor">
+      <param name="use_sim_time" value="$(var use_sim_time)"/>
+    </node>
+  </group>
+
+  <!-- Lift Manager: lift supervisor plus queued lift selection -->
+  <group if="$(var use_lift_manager)">
+    <node pkg="rmf_lift_manager" exec="lift_manager" output="both">
+      <param from="$(var lift_manager_config)"/>
       <param name="use_sim_time" value="$(var use_sim_time)"/>
     </node>
   </group>
