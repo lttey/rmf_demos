@@ -14,6 +14,9 @@
   <arg name="use_site_map" default="false" description="Generate and serve site maps if True. Otherwise supports only building maps."/>
   <arg name="use_lift_manager" default="false" description="Run rmf_lift_manager (lift supervisor + lift selection) instead of lift_supervisor"/>
   <arg name="lift_manager_config" default="$(find-pkg-share rmf_lift_manager)/config/lift_manager.yaml" description="Parameter file for rmf_lift_manager"/>
+  <arg name="zone_entry_request_timeout" default="30" description="Seconds a zone request waits for reservations before it is refused"/>
+  <arg name="zone_reservation_settle_time_ms" default="1000" description="Milliseconds to wait for a zone's reservations before choosing"/>
+  <arg name="zone_pool_idle_timeout" default="30" description="Seconds a zone sits unwanted before its reservations are handed back"/>
 
   <!-- Traffic Schedule  -->
   <node pkg="rmf_traffic_ros2" exec="rmf_traffic_schedule" output="both" name="rmf_traffic_schedule_primary">
@@ -93,5 +96,14 @@
     <node pkg="rmf_fleet_adapter" exec="mutex_group_supervisor"/>
   </group>
 
+  <!-- Zone Manager, manages zone bookings for robots -->
+  <group>
+    <node pkg="rmf_fleet_adapter" exec="zone_manager">
+      <param name="use_sim_time" value="$(var use_sim_time)"/>
+      <param name="entry_request_timeout" value="$(var zone_entry_request_timeout)"/>
+      <param name="reservation_settle_time_ms" value="$(var zone_reservation_settle_time_ms)"/>
+      <param name="zone_pool_idle_timeout" value="$(var zone_pool_idle_timeout)"/>
+    </node>
+  </group>
 
 </launch>
